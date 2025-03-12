@@ -78,8 +78,7 @@ contract KipuBank {
     // Withdraw function
     function withdraw(uint256 amount) external 
         checkWithdrawLimit(amount)
-        checkSufficientBalance(amount)
-    {
+        checkSufficientBalance(amount) {
         // Update balance before transfer (_wallet: msg.sender, _amount: amount)
         s_balances[msg.sender] -= amount;
 
