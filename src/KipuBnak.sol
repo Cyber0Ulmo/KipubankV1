@@ -4,7 +4,7 @@ pragma solidity ^0.8.20;
 error KipuBank_InsufficientBalance();
 error KipuBank_ExceedsWithdrawLimit();
 error KipuBank_DepositExceedsCap();
-error KipuBank_WithdrawValue();
+error KipuBank_TransferFailed();
 
 contract KipuBank {
     // State variables
@@ -26,6 +26,10 @@ contract KipuBank {
     // Constructor
     constructor(uint256 bankCap) {
         s_bankCap = bankCap;
+    }
+    // receive() function to receive ETH
+    receive() external payable {
+        revert("Use deposit function");
     }
 
     // Modifier to check if the deposit does not exceed the bank cap
@@ -52,13 +56,12 @@ contract KipuBank {
         _;
     }
     
-   
     // Internal function to transfer ETH to the user
     function _transferETH(address recipient, uint256 amount) internal {
         (bool success, ) = recipient.call{value: amount}("");
         
         if (!success) {
-            revert KipuBank_WithdrawValue();
+            revert KipuBank_TransferFailed();
         }
     }
 
@@ -74,7 +77,7 @@ contract KipuBank {
 
     // Withdraw function
     function withdraw(uint256 amount) external 
-         checkWithdrawLimit(amount)
+        checkWithdrawLimit(amount)
         checkSufficientBalance(amount)
     {
         // Update balance before transfer (_wallet: msg.sender, _amount: amount)
